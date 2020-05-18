@@ -1,4 +1,3 @@
-
 int laserPin = 2;
 int  sensorPin  =  A0;     // select the input  pin for  the potentiometer 
 int buzzer = 11; // off right now, 10 to turn it on
@@ -7,24 +6,23 @@ int redPin = A2; // because A6 seems to be broken
 int greenPin = A4;
 int bluePin = A3;
 
-int inverseFreq = 1;
 int onThresh = 850;
 int offThresh = 950;
 
 int  sensorValue;  // variable to  store  the value  coming  from  the sensor
-bool state;
+bool state;       // variable to store current state of water level (above/below)
 
 void setup() {
+  // Set output pins
   pinMode(laserPin, OUTPUT);
   pinMode(buzzer,OUTPUT);
-  
   pinMode(redPin,OUTPUT);
   pinMode(greenPin,OUTPUT);
   pinMode(bluePin,OUTPUT);
-  
+
   Serial.begin(9600);
 
-  // Initial value
+  // Read initial value
   digitalWrite(laserPin,HIGH);
   delay(200);
   sensorValue =  analogRead(sensorPin);
@@ -41,9 +39,25 @@ void setup() {
 
 void loop() {
 
+  // Set indicating LED to current state
+  if (state){
+    digitalWrite(redPin,LOW);
+    digitalWrite(greenPin,HIGH);
+    digitalWrite(bluePin,LOW);
+  }
+  else{
+    digitalWrite(redPin,HIGH);
+    digitalWrite(greenPin,LOW);
+    digitalWrite(bluePin,LOW);
+  }
+
+  delay(1000);
+
+  // Read new value
   sensorValue =  analogRead(sensorPin);
   Serial.println(sensorValue);
-  
+
+  // Set state to false if resistance too high
   if (state && sensorValue>offThresh){
     state = false;
     digitalWrite(greenPin,LOW);
@@ -59,6 +73,7 @@ void loop() {
     }
   }
 
+  // Set state to true if resistance too low
   if (!state && sensorValue < onThresh){
     state = true;
 
@@ -75,18 +90,4 @@ void loop() {
     }
   }
 
-  if (state){
-    digitalWrite(redPin,LOW);
-    digitalWrite(greenPin,HIGH);
-    digitalWrite(bluePin,LOW);
-  }
-  else{
-    digitalWrite(redPin,HIGH);
-    digitalWrite(greenPin,LOW);
-    digitalWrite(bluePin,LOW);
-  }
-  
-  delay(1000);
-  
-  
 }
